@@ -23,9 +23,9 @@ char *ph(char *or, char **env)
 	}
 	}
 	pe = genv("PATH", env);
-	if (!pe)
+	dir = strtok(pe, ":");
+	if (pe == NULL)
 		return (NULL);
-		dir = strtok(pe, ":");
 	while (dir)
 	{
 	cmd = malloc(strlen(dir) + strlen(or) + 2);
@@ -84,14 +84,13 @@ char *readline(void)
  */
 int _execve(char **orwo, int l, char **av, char **env, int status1)
 {
-	char *cmd;
+	char *cmd, *b;
 	pid_t mypid;
 	int status2;
+	int x = 0;
 
 	if (strcmp(orwo[0], "exit") == 0)
 	{
-	char *b;
-	int x = 0;
 
 	if (l >= 2)
 	{
@@ -101,7 +100,6 @@ int _execve(char **orwo, int l, char **av, char **env, int status1)
 		b = NULL;
 	} else if (status1 > 1)
 		x = status1;
-
 	freear(orwo);
 	exit(x);
 	} cmd = ph(orwo[0], environ);
@@ -114,10 +112,12 @@ int _execve(char **orwo, int l, char **av, char **env, int status1)
 	if (mypid == 0)
 	{
 	if (execve(cmd, orwo, env) == -1)
+	{
 		free(cmd);
 		cmd = NULL;
-		freear(orwo);
-	} else
+	} freear(orwo);
+	}
+	else
 	{
 	waitpid(mypid, &status2, 0);
 	freear(orwo);
